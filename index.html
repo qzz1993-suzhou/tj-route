@@ -112,6 +112,13 @@
     .ck input{display:none}
     @page{size:A5 portrait;margin:6mm}
   }
+
+  /* ===== 标签兜底：JS 不可用时靠 :target 也能切换 ===== */
+  .tab{text-decoration:none}
+  .pane{scroll-margin-top:64px}
+  .pane:target{display:block}
+  body:not(:has(.pane:target)) .pane[data-default]{display:block}
+  body:has(#allTarget:target) .pane{display:block}
 </style>
 </head>
 <body>
@@ -121,18 +128,18 @@
   <div class="sub">11.28 周六 – 11.29 周日 ｜ 小钱 · 柠檬</div>
 
   <nav class="tabs" id="tabs">
-    <button class="tab active" data-t="t1" type="button">须知</button>
-    <button class="tab" data-t="t4" type="button">勾选清单</button>
-    <button class="tab" data-t="t2" type="button">11/28 周六</button>
-    <button class="tab" data-t="t6" type="button">晚间分工</button>
-    <button class="tab" data-t="t3" type="button">11/29 周日</button>
-    <button class="tab" data-t="t7" type="button">两版对比</button>
-    <button class="tab" data-t="t5" type="button">备选</button>
-    <button class="tab ghost" data-t="all" type="button">全部</button>
+    <a class="tab active" href="#t1" data-t="t1">须知</a>
+    <a class="tab" href="#t4" data-t="t4">勾选清单</a>
+    <a class="tab" href="#t2" data-t="t2">11/28 周六</a>
+    <a class="tab" href="#t6" data-t="t6">晚间分工</a>
+    <a class="tab" href="#t3" data-t="t3">11/29 周日</a>
+    <a class="tab" href="#t7" data-t="t7">两版对比</a>
+    <a class="tab" href="#t5" data-t="t5">备选</a>
+    <a class="tab ghost" href="#allTarget" data-t="all">全部</a>
   </nav>
 
   <!-- ============ 须知 ============ -->
-  <section class="pane active" id="t1">
+  <section class="pane" id="t1" data-default>
 
     <div class="card">
       <h2>三个决策点</h2>
@@ -497,35 +504,36 @@
   </section>
 
   <p class="foot">票价、时刻、距离按 2026-11 各平台与 12306 核对，以现场和导航为准。<br>照片来自 Wikimedia Commons（CC BY-SA），仅作识别用。</p>
+<span id="allTarget"></span>
 </div>
 
 <script>
 (function(){
   var tabs=[].slice.call(document.querySelectorAll('.tab'));
   var panes=[].slice.call(document.querySelectorAll('.pane'));
-  function show(id,btn){
-    document.body.classList.toggle('all', id==='all');
-    panes.forEach(function(p){p.classList.toggle('active', id!=='all' && p.id===id);});
-    tabs.forEach(function(t){t.classList.toggle('active', t===btn);});
-    if(btn&&btn.scrollIntoView){btn.scrollIntoView({inline:'center',block:'nearest'});}
-    window.scrollTo(0,0);
-    history.replaceState(null,'',location.pathname+'?t='+id);
-  }
-  tabs.forEach(function(t){t.addEventListener('click',function(){show(t.dataset.t,t);});});
-  var m=/[?&]t=([a-z0-9]+)/i.exec(location.search||'');
-  var want=m?m[1]:'t1';
-  var pick=tabs.filter(function(x){return x.dataset.t===want;})[0]||tabs[0];
-  show(pick.dataset.t,pick);
-  window.addEventListener('load',function(){window.scrollTo(0,0);});
 
-  var _src={};
-  [].slice.call(document.querySelectorAll('img.ph[src]')).forEach(function(i){
-    if(!_src[i.alt]){_src[i.alt]=i.getAttribute('src');}
+  function activate(id,btn){
+    var all = (id==='all');
+    document.body.classList.toggle('all', all);
+    panes.forEach(function(p){p.classList.toggle('active', !all && p.id===id);});
+    tabs.forEach(function(t){t.classList.toggle('active', t===btn);});
+  }
+
+  // 点标签：不拦截默认行为，交给浏览器改 hash，由 CSS :target 负责显示
+  tabs.forEach(function(t){
+    t.addEventListener('click', function(){ activate(t.dataset.t, t); });
   });
-  [].slice.call(document.querySelectorAll('img.ph[data-copy]')).forEach(function(i){
-    var s=_src[i.dataset.copy];
-    if(s){i.setAttribute('src',s);}
-  });
+
+  function syncFromHash(){
+    var h = (location.hash||'').replace('#','');
+    var btn = tabs.filter(function(x){ return x.dataset.t===h; })[0];
+    if (btn) { activate(btn.dataset.t, btn); return; }
+    if (h==='allTarget') { var b2=tabs.filter(function(x){return x.dataset.t==='all';})[0]; if(b2){activate('all',b2);return;} }
+    activate('t1', tabs[0]);
+  }
+  window.addEventListener('hashchange', syncFromHash);
+  syncFromHash();
+  window.addEventListener('load', function(){ window.scrollTo(0,0); });
 
   var KEY='tj_route_checks_v1';
   var boxes=[].slice.call(document.querySelectorAll('.ck input'));
