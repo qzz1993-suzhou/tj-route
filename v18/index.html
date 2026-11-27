@@ -154,7 +154,7 @@
 <div class="wrap">
 
   <h1>天津 2 日路书</h1>
-  <div class="sub">11.28 周六 – 11.29 周日 ｜ 小钱 · 柠檬 <span style="color:#0f5c9c;font-weight:700">· <span id="ver">V24</span></span> <button id="rf" type="button" class="rf">↻ 刷新</button></div>
+  <div class="sub">11.28 周六 – 11.29 周日 ｜ 小钱 · 柠檬 <span style="color:#0f5c9c;font-weight:700">· <span id="ver">V25</span></span> <button id="rf" type="button" class="rf">↻ 刷新</button></div>
 
   <input type="radio" name="tabsel" id="r_t1" checked>
 <input type="radio" name="tabsel" id="r_t4">
@@ -672,7 +672,7 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
     return 'intent://' + path + '#Intent;scheme=' + scheme + ';package=' + pkg +
            ';S.browser_fallback_url=' + encodeURIComponent(web) + ';end';
   }
-  // 高德：按关键词搜地点
+  // 高德：intent 直达 App（已确认可用）
   var maps = document.querySelectorAll('a.nav[data-web]');
   for(var i=0;i<maps.length;i++){
     var a = maps[i];
@@ -681,17 +681,14 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
       'poi?sourceApplication=tjroute&dev=0&keywords=' + kw, a.getAttribute('data-web')));
     a.removeAttribute('target'); a.removeAttribute('rel');
   }
-  // 点评：带门店 ID 的走 App，没有 ID 的走网页
+  // 点评：直接开「门店网页」。若系统注册了该域名的 App Link，会自己跳进 App；
+  //       否则网页顶部有「打开App」按钮，不会被自定义协议卡住。
   var dps = document.querySelectorAll('a.dp[data-web]');
   for(var j=0;j<dps.length;j++){
     var b = dps[j];
-    var web = b.getAttribute('data-web');
-    var sid = b.getAttribute('data-shop');
-    if(sid){
-      b.setAttribute('href', toIntent('dianping','com.dianping.v1',
-        'shopinfo?id=' + encodeURIComponent(sid), web));
-      b.removeAttribute('target'); b.removeAttribute('rel');
-    }
+    b.setAttribute('href', b.getAttribute('data-web'));
+    b.setAttribute('target', '_blank');
+    b.setAttribute('rel', 'noopener');
   }
 })();
 </script>
