@@ -15,7 +15,7 @@ self.addEventListener('fetch', function(e){
   if(req.method !== 'GET'){ return; }
   if(req.mode === 'navigate'){
     e.respondWith(
-      fetch(req, {cache:'no-store'}).then(function(res){
+      fetch(req, {cache:'no-cache'}).then(function(res){
         var c = res.clone();
         caches.open(CACHE).then(function(x){ x.put('./index.html', c); });
         return res;
