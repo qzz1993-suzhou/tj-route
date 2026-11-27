@@ -148,7 +148,7 @@
 <div class="wrap">
 
   <h1>天津 2 日路书</h1>
-  <div class="sub">11.28 周六 – 11.29 周日 ｜ 小钱 · 柠檬 <span style="color:#0f5c9c;font-weight:700">· <span id="ver">V13</span></span> <button id="rf" type="button" class="rf">↻ 刷新</button></div>
+  <div class="sub">11.28 周六 – 11.29 周日 ｜ 小钱 · 柠檬 <span style="color:#0f5c9c;font-weight:700">· <span id="ver">V14</span></span> <button id="rf" type="button" class="rf">↻ 刷新</button></div>
 
   <nav class="tabs" id="tabs">
     <div class="tabrow">
@@ -602,24 +602,28 @@
     tabs.forEach(function(t){ t.classList.toggle('active', t===el); });
   }
 
+  function tabFor(hash){
+    var key = (hash||'').replace('#','');
+    if(key==='allTarget'){ key='all'; }
+    return tabs.filter(function(x){ return x.dataset.t===key; })[0] || null;
+  }
+
   tabs.forEach(function(t){
-    t.addEventListener('click', function(e){
-      if(e && e.preventDefault){ e.preventDefault(); }
-      activate(t.dataset.t, t);
-      try{
-        history.replaceState(null, '', location.pathname + '?t=' + t.dataset.t);
-      }catch(err){}
-      window.scrollTo(0,0);
-    });
+    t.addEventListener('click', function(){ activate(t.dataset.t, t); });
   });
 
-  // 打开时按 ?t= 定位
-  var m=/[?&]t=([a-z0-9]+)/i.exec(location.search||'');
-  var want = m ? m[1] : 't1';
-  var hit = tabs.filter(function(x){ return x.dataset.t===want; })[0] || tabs[0];
-  activate(hit.dataset.t, hit);
+  function sync(){
+    var hit = tabFor(location.hash);
+    if(hit){ activate(hit.dataset.t, hit); }
+    try{ history.replaceState(null, '', location.href); }catch(err){}
+  }
+  window.addEventListener('hashchange', sync);
 
+  var hit0 = tabFor(location.hash);
+  if(hit0){ activate(hit0.dataset.t, hit0); }
+  else { activate('t1', tabs[0]); }
 
+  var KEY='tj_route_checks_v1';
   var boxes=[].slice.call(document.querySelectorAll('.ck input'));
   var cnts=[].slice.call(document.querySelectorAll('.cnt'));
   var tots=[].slice.call(document.querySelectorAll('.tot'));
