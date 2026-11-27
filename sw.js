@@ -1,4 +1,4 @@
-const CACHE='tj-route-v8';
+const CACHE='tj-route-v9';
 const ASSETS=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-180.png','./icon-512.png'];
 
 self.addEventListener('install',function(e){
