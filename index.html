@@ -125,7 +125,7 @@
   .tab{text-decoration:none}
   .pane{scroll-margin-top:126px}
   .pane:target{display:block}
-  body:not(:has(.pane:target)) .pane[data-default]{display:block}
+  body:not(.js):not(:has(.pane:target)) .pane[data-default]{display:block}
   body:has(#allTarget:target) .pane{display:block}
 </style>
 </head>
@@ -133,7 +133,7 @@
 <div class="wrap">
 
   <h1>天津 2 日路书</h1>
-  <div class="sub">11.28 周六 – 11.29 周日 ｜ 小钱 · 柠檬 <span style="color:#0f5c9c;font-weight:700">· <span id="ver">V9</span></span> <button id="rf" type="button" class="rf">↻ 刷新</button></div>
+  <div class="sub">11.28 周六 – 11.29 周日 ｜ 小钱 · 柠檬 <span style="color:#0f5c9c;font-weight:700">· <span id="ver">V10</span></span> <button id="rf" type="button" class="rf">↻ 刷新</button></div>
 
   <nav class="tabs" id="tabs">
     <div class="tabrow">
@@ -576,33 +576,35 @@
 
 <script>
 (function(){
+  document.body.classList.add('js');
   var tabs=[].slice.call(document.querySelectorAll('.tab'));
   var panes=[].slice.call(document.querySelectorAll('.pane'));
 
-  function activate(id,btn){
+  function activate(id, el){
     var all = (id==='all');
     document.body.classList.toggle('all', all);
-    panes.forEach(function(p){p.classList.toggle('active', !all && p.id===id);});
-    tabs.forEach(function(t){t.classList.toggle('active', t===btn);});
+    panes.forEach(function(p){ p.classList.toggle('active', !all && p.id===id); });
+    tabs.forEach(function(t){ t.classList.toggle('active', t===el); });
   }
 
-  // 点标签：不拦截默认行为，交给浏览器改 hash，由 CSS :target 负责显示
   tabs.forEach(function(t){
-    t.addEventListener('click', function(){ activate(t.dataset.t, t); });
+    t.addEventListener('click', function(e){
+      if(e && e.preventDefault){ e.preventDefault(); }
+      activate(t.dataset.t, t);
+      try{
+        history.replaceState(null, '', location.pathname + '?t=' + t.dataset.t);
+      }catch(err){}
+      window.scrollTo(0,0);
+    });
   });
 
-  function syncFromHash(){
-    var h = (location.hash||'').replace('#','');
-    var btn = tabs.filter(function(x){ return x.dataset.t===h; })[0];
-    if (btn) { activate(btn.dataset.t, btn); return; }
-    if (h==='allTarget') { var b2=tabs.filter(function(x){return x.dataset.t==='all';})[0]; if(b2){activate('all',b2);return;} }
-    activate('t1', tabs[0]);
-  }
-  window.addEventListener('hashchange', syncFromHash);
-  syncFromHash();
-  window.addEventListener('load', function(){ window.scrollTo(0,0); });
+  // 打开时按 ?t= 定位
+  var m=/[?&]t=([a-z0-9]+)/i.exec(location.search||'');
+  var want = m ? m[1] : 't1';
+  var hit = tabs.filter(function(x){ return x.dataset.t===want; })[0] || tabs[0];
+  activate(hit.dataset.t, hit);
 
-  var KEY='tj_route_checks_v1';
+
   var boxes=[].slice.call(document.querySelectorAll('.ck input'));
   var cnts=[].slice.call(document.querySelectorAll('.cnt'));
   var tots=[].slice.call(document.querySelectorAll('.tot'));
