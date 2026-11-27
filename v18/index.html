@@ -27,18 +27,37 @@
      padding:2px 9px;font:inherit;font-size:12px;color:var(--accent);font-weight:700;cursor:pointer;
      vertical-align:1px;-webkit-tap-highlight-color:transparent}
 
+  input[name="tabsel"]{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+  #r_t1:checked ~ #t1{display:block}
+  #r_t4:checked ~ #t4{display:block}
+  #r_t8:checked ~ #t8{display:block}
+  #r_t2:checked ~ #t2{display:block}
+  #r_t6:checked ~ #t6{display:block}
+  #r_t5:checked ~ #t5{display:block}
+  #r_t3:checked ~ #t3{display:block}
+  #r_t7:checked ~ #t7{display:block}
+  #r_all:checked ~ .pane{display:block}
+  #r_t1:checked ~ .tabs label[for="r_t1"],
+  #r_t4:checked ~ .tabs label[for="r_t4"],
+  #r_t8:checked ~ .tabs label[for="r_t8"],
+  #r_t2:checked ~ .tabs label[for="r_t2"],
+  #r_t6:checked ~ .tabs label[for="r_t6"],
+  #r_t5:checked ~ .tabs label[for="r_t5"],
+  #r_t3:checked ~ .tabs label[for="r_t3"],
+  #r_t7:checked ~ .tabs label[for="r_t7"],
+  #r_all:checked ~ .tabs label[for="r_all"]{
+    background:var(--accent);border-color:var(--accent);color:#fff
+  }
   .tabs{position:sticky;top:0;z-index:60;background:#f6f7f9;
         margin:0 -13px 12px;padding:7px 13px 8px;border-bottom:1px solid var(--line)}
   .tabrow{display:flex;gap:6px;margin-bottom:5px}
   .tabrow:last-child{margin-bottom:0}
   .tabs::-webkit-scrollbar{display:none}
   .tab{flex:1 1 0;min-width:0;border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 4px;font:inherit;font-size:13px;font-weight:700;color:var(--ink);cursor:pointer;white-space:nowrap;text-align:center;overflow:hidden;text-overflow:ellipsis;line-height:1.25}
-  .tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+  
   .tab.ghost{border-style:dashed;font-weight:600;color:var(--sub)}
 
   .pane{display:none}
-  .pane.active{display:block}
-  body.all .pane{display:block}
   body.all .pane + .pane{margin-top:14px}
 
   .card{background:var(--card);border:1px solid var(--line);border-radius:14px;
@@ -128,8 +147,6 @@
   /* ===== 标签兜底：JS 不可用时靠 :target 也能切换 ===== */
   .tab{text-decoration:none}
   .pane{scroll-margin-top:126px}
-  .pane:target{display:block}
-  body.all .pane{display:block}
 </style>
 </head>
 <body>
@@ -137,23 +154,33 @@
 <div class="wrap">
 
   <h1>天津 2 日路书</h1>
-  <div class="sub">11.28 周六 – 11.29 周日 ｜ 小钱 · 柠檬 <span style="color:#0f5c9c;font-weight:700">· <span id="ver">V23</span></span> <button id="rf" type="button" class="rf">↻ 刷新</button></div>
+  <div class="sub">11.28 周六 – 11.29 周日 ｜ 小钱 · 柠檬 <span style="color:#0f5c9c;font-weight:700">· <span id="ver">V24</span></span> <button id="rf" type="button" class="rf">↻ 刷新</button></div>
+
+  <input type="radio" name="tabsel" id="r_t1" checked>
+<input type="radio" name="tabsel" id="r_t4">
+<input type="radio" name="tabsel" id="r_t8">
+<input type="radio" name="tabsel" id="r_t2">
+<input type="radio" name="tabsel" id="r_t6">
+<input type="radio" name="tabsel" id="r_t5">
+<input type="radio" name="tabsel" id="r_t3">
+<input type="radio" name="tabsel" id="r_t7">
+<input type="radio" name="tabsel" id="r_all">
 
   <nav class="tabs" id="tabs">
     <div class="tabrow">
-      <a class="tab" href="#t1" data-t="t1">须知</a>
-      <a class="tab" href="#t4" data-t="t4">勾选清单</a>
-      <a class="tab" href="#t8" data-t="t8">地图</a>
+      <label class="tab" for="r_t1">须知</label>
+      <label class="tab" for="r_t4">勾选清单</label>
+      <label class="tab" for="r_t8">地图</label>
     </div>
     <div class="tabrow">
-      <a class="tab" href="#t2" data-t="t2">11月28日周六</a>
-      <a class="tab" href="#t6" data-t="t6">晚间分工</a>
-      <a class="tab" href="#t5" data-t="t5">备选</a>
+      <label class="tab" for="r_t2">11月28日周六</label>
+      <label class="tab" for="r_t6">晚间分工</label>
+      <label class="tab" for="r_t5">备选</label>
     </div>
     <div class="tabrow">
-      <a class="tab" href="#t3" data-t="t3">11月29日周日</a>
-      <a class="tab" href="#t7" data-t="t7">两版对比</a>
-      <a class="tab ghost" href="#allTarget" data-t="all">全部</a>
+      <label class="tab" for="r_t3">11月29日周日</label>
+      <label class="tab" for="r_t7">两版对比</label>
+      <label class="tab ghost" for="r_all">全部</label>
     </div>
   </nav>
 
@@ -581,38 +608,6 @@
 
 <script>
 (function(){
-  document.body.classList.add('js');
-  var tabs=[].slice.call(document.querySelectorAll('.tab'));
-  var panes=[].slice.call(document.querySelectorAll('.pane'));
-
-  function activate(id, el){
-    var all = (id==='all');
-    document.body.classList.toggle('all', all);
-    panes.forEach(function(p){ p.classList.toggle('active', !all && p.id===id); });
-    tabs.forEach(function(t){ t.classList.toggle('active', t===el); });
-  }
-
-  function tabFor(hash){
-    var key = (hash||'').replace('#','');
-    if(key==='allTarget'){ key='all'; }
-    return tabs.filter(function(x){ return x.dataset.t===key; })[0] || null;
-  }
-
-  tabs.forEach(function(t){
-    t.addEventListener('click', function(){ activate(t.dataset.t, t); });
-  });
-
-  function sync(){
-    var hit = tabFor(location.hash);
-    if(hit){ activate(hit.dataset.t, hit); }
-    try{ history.replaceState(null, '', location.href); }catch(err){}
-  }
-  window.addEventListener('hashchange', sync);
-
-  var hit0 = tabFor(location.hash);
-  if(hit0){ activate(hit0.dataset.t, hit0); }
-  else { activate('t1', tabs[0]); }
-
   var KEY='tj_route_checks_v1';
   var boxes=[].slice.call(document.querySelectorAll('.ck input'));
   var cnts=[].slice.call(document.querySelectorAll('.cnt'));
