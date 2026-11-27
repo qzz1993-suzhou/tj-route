@@ -137,7 +137,7 @@
 <div class="wrap">
 
   <h1>天津 2 日路书</h1>
-  <div class="sub">11.28 周六 – 11.29 周日 ｜ 小钱 · 柠檬 <span style="color:#0f5c9c;font-weight:700">· <span id="ver">V20</span></span> <button id="rf" type="button" class="rf">↻ 刷新</button></div>
+  <div class="sub">11.28 周六 – 11.29 周日 ｜ 小钱 · 柠檬 <span style="color:#0f5c9c;font-weight:700">· <span id="ver">V21</span></span> <button id="rf" type="button" class="rf">↻ 刷新</button></div>
 
   <nav class="tabs" id="tabs">
     <div class="tabrow">
@@ -671,26 +671,29 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
 <script>
 (function(){
   var isAndroid = /Android/i.test(navigator.userAgent||'');
-  if(!isAndroid){ return; }             // 只给安卓改 href，其它平台用网页版
+  if(!isAndroid){ return; }
   function toIntent(scheme, pkg, path, web){
     return 'intent://' + path + '#Intent;scheme=' + scheme + ';package=' + pkg +
            ';S.browser_fallback_url=' + encodeURIComponent(web) + ';end';
   }
-  var links = document.querySelectorAll('a.nav[data-web], a.dp[data-web]');
-  for(var i=0;i<links.length;i++){
-    var a = links[i];
+  // 只有「导航」走高德 App 深链（实测有效）
+  var maps = document.querySelectorAll('a.nav[data-web]');
+  for(var i=0;i<maps.length;i++){
+    var a = maps[i];
     var web = a.getAttribute('data-web');
     var kw  = encodeURIComponent(a.getAttribute('data-kw')||'');
-    if(!web){ continue; }
-    if(a.classList.contains('nav')){
-      a.setAttribute('href', toIntent('androidamap','com.autonavi.minimap',
-        'poi?sourceApplication=tjroute&dev=0&keywords=' + kw, web));
-    }else{
-      a.setAttribute('href', toIntent('dianping','com.dianping.v1',
-        'searchshop?keyword=' + kw, web));
-    }
+    a.setAttribute('href', toIntent('androidamap','com.autonavi.minimap',
+      'poi?sourceApplication=tjroute&dev=0&keywords=' + kw, web));
     a.removeAttribute('target');
     a.removeAttribute('rel');
+  }
+  // 点评：直接开网页版（App 深链需要门店ID，无法通用）
+  var dps = document.querySelectorAll('a.dp[data-web]');
+  for(var j=0;j<dps.length;j++){
+    var b = dps[j];
+    b.setAttribute('href', b.getAttribute('data-web'));
+    b.setAttribute('target','_blank');
+    b.setAttribute('rel','noopener');
   }
 })();
 </script>
